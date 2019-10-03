@@ -28,6 +28,10 @@ public final class Pandora extends FileProvider implements SensorDetector.Callba
         }
     }
 
+    public static void setDingTalk(DingTalk.IDingTalk iDingTalk) {
+        DingTalk.iDingTalk = iDingTalk;
+    }
+
     @Override
     public boolean onCreate() {
         INSTANCE = this;

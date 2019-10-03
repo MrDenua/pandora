@@ -9,6 +9,7 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import tech.linjiang.pandora.ui.item.NetItem;
 import tech.linjiang.pandora.ui.recyclerview.BaseItem;
 import tech.linjiang.pandora.ui.recyclerview.UniversalAdapter;
 import tech.linjiang.pandora.util.Config;
+import tech.linjiang.pandora.util.NetFilter;
 import tech.linjiang.pandora.util.SimpleTask;
 import tech.linjiang.pandora.util.Utils;
 import tech.linjiang.pandora.util.ViewKnife;
@@ -48,14 +50,39 @@ public class NetFragment extends BaseListFragment implements Toolbar.OnMenuItemC
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getToolbar().setTitle(R.string.pd_name_network);
-        getToolbar().getMenu().add(-1, R.id.pd_menu_id_1, 0, "")
+        Button button = new Button(getContext());
+        button.setText("NetFilter");
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NetFilterDialog.create(getContext()).setOnChangeListener(
+                        new NetFilterDialog.OnChangeListener() {
+                    @Override
+                    public void onChange() {
+                        if (NetFilter.get().isEnable()){
+                            filter();
+                        }else{
+                            loadData();
+                        }
+                    }
+                }).show();
+            }
+        });
+
+        getToolbar().getMenu().add(-1, R.id.pd_menu_id_0, 0, "")
+                .setActionView(button)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        getToolbar().getMenu().add(-1, R.id.pd_menu_id_1, 1, "")
                 .setActionView(new SwitchCompat(getContext()))
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        getToolbar().getMenu().add(-1, R.id.pd_menu_id_2, 1, R.string.pd_name_search)
+        getToolbar().getMenu().add(-1, R.id.pd_menu_id_2, 2, R.string.pd_name_search)
                 .setActionView(new SearchView(getContext()))
                 .setIcon(R.drawable.pd_search)
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-        getToolbar().getMenu().add(-1, R.id.pd_menu_id_3, 2, R.string.pd_name_clear);
+        getToolbar().getMenu().add(-1, R.id.pd_menu_id_3, 3, R.string.pd_name_clear);
+        getToolbar().getMenu().add(-1, R.id.pd_menu_id_4, 4, "Filter 200");
+        getToolbar().getMenu().add(-1, R.id.pd_menu_id_5, 5, "json");
+
         setSearchView();
         getToolbar().setOnMenuItemClickListener(this);
         SwitchCompat switchCompat = ((SwitchCompat) getToolbar()
@@ -77,6 +104,7 @@ public class NetFragment extends BaseListFragment implements Toolbar.OnMenuItemC
                 }
             }
         });
+        NetFilter.setup();
     }
 
     @Override
@@ -100,7 +128,9 @@ public class NetFragment extends BaseListFragment implements Toolbar.OnMenuItemC
                 if (Utils.isNotEmpty(result)) {
                     List<BaseItem> data = new ArrayList<>(result.size());
                     for (Summary summary : result) {
-                        data.add(new NetItem(summary));
+                        if (!NetFilter.get().filter(summary)){
+                            data.add(new NetItem(summary));
+                        }
                     }
                     getAdapter().setItems(data);
 
@@ -140,14 +170,14 @@ public class NetFragment extends BaseListFragment implements Toolbar.OnMenuItemC
         searchView.setOnQueryTextListener(new SimpleOnQueryTextListener() {
             @Override
             public boolean onQueryTextChange(String newText) {
-                filter(newText);
+                search(newText);
                 return true;
             }
 
             @Override
             public boolean onQueryTextSubmit(String query) {
                 closeSoftInput();
-                filter(query);
+                search(query);
                 return true;
             }
         });
@@ -167,6 +197,13 @@ public class NetFragment extends BaseListFragment implements Toolbar.OnMenuItemC
                 return false;
             }
             clearData();
+        }
+        if (item.getItemId() == R.id.pd_menu_id_4) {
+            NetFilter.filter200 = !NetFilter.filter200;
+            filter();
+        }
+        if (item.getItemId() == R.id.pd_menu_id_5) {
+            return true;
         }
         closeSoftInput();
         return true;
@@ -197,7 +234,7 @@ public class NetFragment extends BaseListFragment implements Toolbar.OnMenuItemC
         refreshSingleData(false, id);
     }
 
-    private void filter(String condition) {
+    private void search(String condition) {
         tmpFilter.clear();
         if (TextUtils.isEmpty(condition)) {
             loadData();
@@ -216,6 +253,23 @@ public class NetFragment extends BaseListFragment implements Toolbar.OnMenuItemC
         }
     }
 
+    private void filter() {
+        NetFilter filter = NetFilter.get();
+        if (filter == null || !NetFilter.isEnable()){
+            return;
+        }
+        tmpFilter.clear();
+        for (int i = originData.size() - 1; i >= 0; i--) {
+            if (originData.get(i) instanceof NetItem) {
+                Summary summary = ((Summary)originData.get(i).data);
+                if (!filter.filter(summary)){
+                    tmpFilter.add(originData.get(i));
+                }
+            }
+        }
+        getAdapter().setItems(tmpFilter);
+    }
+
     private void refreshSingleData(final boolean isNew, final long id) {
         new SimpleTask<>(new SimpleTask.Callback<Void, Summary>() {
             @Override
@@ -226,7 +280,7 @@ public class NetFragment extends BaseListFragment implements Toolbar.OnMenuItemC
             @Override
             public void onPostExecute(Summary result) {
                 hideLoading();
-                if (result == null) {
+                if (result == null||NetFilter.get().filter(result)) {
                     return;
                 }
                 if (!isNew) {
