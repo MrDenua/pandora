@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:background="@color/pd_main_bg"
+    android:orientation="vertical"
+    android:padding="15dp">
+
+
+    <EditText
+        android:id="@+id/et_filter"
+        android:layout_width="match_parent"
+        android:hint="
+        \n start with ! is exclude
+        \n
+        \n types: host, url, mime, code
+        \n
+        \n example1: !(host)google   => exclude host contain google
+        \n example2: !(url)search => exclude url contain search
+        \n example3: !(type)img => exclude img response
+        \n"
+        android:layout_height="500dp"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Switch
+            android:id="@+id/sw_enable"
+            android:text="Enable"
+            android:checked="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/bt_ok"
+            android:text="apply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</LinearLayout>

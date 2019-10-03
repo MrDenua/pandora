@@ -5,12 +5,16 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import tech.linjiang.pandora.DingTalk;
+import tech.linjiang.pandora.Pandora;
 import tech.linjiang.pandora.cache.Content;
 import tech.linjiang.pandora.cache.Summary;
 import tech.linjiang.pandora.core.R;
@@ -37,6 +41,16 @@ public class NetSummaryFragment extends BaseListFragment {
         super.onViewCreated(view, savedInstanceState);
         final long id = getArguments().getLong(PARAM1);
         loadData(id);
+        getToolbar().getMenu().add("Report");
+        getToolbar().getMenu().getItem(0)
+                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        DingTalk.gitlab(originData);
+                        return false;
+                    }
+                });
+
         getAdapter().setListener(new UniversalAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position, BaseItem item) {
