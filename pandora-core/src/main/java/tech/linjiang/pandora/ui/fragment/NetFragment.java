@@ -1,5 +1,7 @@
 package tech.linjiang.pandora.ui.fragment;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.SearchView;
@@ -9,12 +11,15 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import tech.linjiang.pandora.DingTalk;
 import tech.linjiang.pandora.Pandora;
 import tech.linjiang.pandora.cache.Content;
 import tech.linjiang.pandora.cache.Summary;
@@ -80,8 +85,9 @@ public class NetFragment extends BaseListFragment implements Toolbar.OnMenuItemC
                 .setIcon(R.drawable.pd_search)
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
         getToolbar().getMenu().add(-1, R.id.pd_menu_id_3, 3, R.string.pd_name_clear);
-        getToolbar().getMenu().add(-1, R.id.pd_menu_id_4, 4, "Filter 200");
-        getToolbar().getMenu().add(-1, R.id.pd_menu_id_5, 5, "json");
+        getToolbar().getMenu().add(-1, R.id.pd_menu_id_4, 4, "Filter HTTP 200");
+        getToolbar().getMenu().add(-1, R.id.pd_menu_id_5, 5, "Set DingTalk Token");
+        getToolbar().getMenu().add(-1, R.id.pd_menu_id_6, 6, "Send Msg To DingTalk");
 
         setSearchView();
         getToolbar().setOnMenuItemClickListener(this);
@@ -203,6 +209,37 @@ public class NetFragment extends BaseListFragment implements Toolbar.OnMenuItemC
             filter();
         }
         if (item.getItemId() == R.id.pd_menu_id_5) {
+            final EditText editText = new EditText(getContext());
+            editText.setHint(Config.getDingTalkToken());
+            editText.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("DingTalk Access Token");
+            builder.setView(editText);
+            builder.setNegativeButton("save", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    DingTalk.TOKEN = editText.getText().toString();
+                    Config.setDingTalkToken(DingTalk.TOKEN);
+                }
+            });
+            builder.create().show();
+            return true;
+        }
+        if (item.getItemId() == R.id.pd_menu_id_6) {
+            final EditText editText = new EditText(getContext());
+            editText.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("Send message to DingTalk");
+            builder.setView(editText);
+            builder.setNegativeButton("send", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    DingTalk.send(editText.getText().toString());
+                }
+            });
+            builder.create().show();
             return true;
         }
         closeSoftInput();

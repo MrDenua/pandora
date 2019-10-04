@@ -22,6 +22,7 @@ public class Summary {
         clear();
     }
 
+    public String[] at;
     @CacheDatabase.Column(value = BaseColumns._ID, primaryKey = true)
     public long id;
     @CacheDatabase.Column("status")
@@ -57,9 +58,10 @@ public class Summary {
     @CacheDatabase.Column("response_header")
     public String responseHeader;
 
+    public String jsonBody = " ";
+
     public List<Pair<String, String>> request_header;
     public List<Pair<String, String>> response_header;
-
 
     public static List<Summary> queryList() {
         String condition = "order by start_time desc limit " + String.valueOf(Config.getNETWORK_PAGE_SIZE());

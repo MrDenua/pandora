@@ -42,11 +42,29 @@ public class NetSummaryFragment extends BaseListFragment {
         final long id = getArguments().getLong(PARAM1);
         loadData(id);
         getToolbar().getMenu().add("Report");
+        getToolbar().getMenu().getItem(0).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         getToolbar().getMenu().getItem(0)
                 .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        DingTalk.gitlab(originData);
+
+                        new SimpleTask<>(new SimpleTask.Callback<Void, String>() {
+                            @Override
+                            public String doInBackground(Void[] params) {
+                                Content content = Content.query(id);
+                                if (content != null) {
+                                    return content.requestBody;
+                                }
+                                return " ";
+                            }
+
+                            @Override
+                            public void onPostExecute(String result) {
+                                originData.jsonBody = result;
+                                DingTalk.gitlab(originData);
+                            }
+                        }).execute();
+
                         return false;
                     }
                 });

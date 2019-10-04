@@ -26,6 +26,7 @@ public class Config {
   private static final String KEY_INTERNAL_DRAG_Y = "key_internal_drag_y";
   private static final String KEY_PERMISSION = "key_permission";
   private static final String KEY_NET_FILTER = "key_net_filter";
+  private static final String KEY_DINTALK_TOKEN = "key_dingtalk_token";
   private static final String KEY_NET_FILTER_ENABLE = "key_net_filter_enable";
 
   private static final boolean DEF_KEY_SHAKE_SWITCH = true;
@@ -158,6 +159,14 @@ public class Config {
 
   public static void setUI_IGNORE_SYS_LAYER(Boolean value) {
     getSp().edit().putBoolean(KEY_UI_IGNORE_SYS_LAYER, value).apply();
+  }
+
+  public static String getDingTalkToken(){
+    return getSp().getString(KEY_DINTALK_TOKEN, "");
+  }
+
+  public static void setDingTalkToken(String token){
+    getSp().edit().putString(KEY_DINTALK_TOKEN, token).apply();
   }
 
   public static String getNetFilterStr(){

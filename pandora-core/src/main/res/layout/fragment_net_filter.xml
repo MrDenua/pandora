@@ -12,15 +12,18 @@
         android:id="@+id/et_filter"
         android:layout_width="match_parent"
         android:hint="
-        \n start with ! is exclude
+        \n ! not
+        \n ~ contain
+        \n = equal
         \n
-        \n types: host, url, mime, code
+        \n types: host, url, mime, code, method
         \n
-        \n example1: !(host)google   => exclude host contain google
-        \n example2: !(url)search => exclude url contain search
-        \n example3: !(type)img => exclude img response
+        \n example1: host~google   => exclude host contain google
+        \n example2: url~search => exclude url contain search
+        \n example3: type!=img => exclude response not img
         \n"
-        android:layout_height="500dp"/>
+        android:layout_height="300dp"
+        android:scrollbars="vertical"/>
 
     <LinearLayout
         android:orientation="horizontal"
