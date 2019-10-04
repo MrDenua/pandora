@@ -1,126 +1,75 @@
 package tech.linjiang.pandora;
 
 import android.app.Activity;
-import android.app.Application;
-import android.content.Context;
 import android.support.v4.content.FileProvider;
 
-import tech.linjiang.pandora.crash.CrashHandler;
+import java.io.IOException;
+
+import okhttp3.Interceptor;
+import okhttp3.Response;
 import tech.linjiang.pandora.database.Databases;
 import tech.linjiang.pandora.function.IFunc;
-import tech.linjiang.pandora.history.HistoryRecorder;
 import tech.linjiang.pandora.inspector.attribute.AttrFactory;
-import tech.linjiang.pandora.network.OkHttpInterceptor;
 import tech.linjiang.pandora.preference.SharedPref;
 import tech.linjiang.pandora.util.SensorDetector;
-import tech.linjiang.pandora.util.Utils;
 
-/**
- * Created by linjiang on 29/05/2018.
- */
+/** Created by linjiang on 29/05/2018. */
 public final class Pandora extends FileProvider implements SensorDetector.Callback {
 
-    private static Pandora INSTANCE;
 
-    public Pandora() {
-        if (INSTANCE != null) {
-            throw new RuntimeException();
-        }
-    }
+  public Pandora() {
+  }
 
-    public static void setDingTalk(DingTalk.IDingTalk iDingTalk) {
-        DingTalk.iDingTalk = iDingTalk;
-    }
+  public static void setDingTalk(DingTalk.IDingTalk iDingTalk) {}
 
-    @Override
-    public boolean onCreate() {
-        INSTANCE = this;
-        Context context = Utils.makeContextSafe(getContext());
-        init(((Application) context));
-        return super.onCreate();
-    }
+  @Override
+  public boolean onCreate() {
+    return super.onCreate();
+  }
 
-    private void init(Application app) {
-        Utils.init(app);
-        funcController = new FuncController(app);
-        sensorDetector = new SensorDetector(this);
-        interceptor = new OkHttpInterceptor();
-        databases = new Databases();
-        sharedPref = new SharedPref();
-        attrFactory = new AttrFactory();
-        crashHandler = new CrashHandler(app);
-        historyRecorder = new HistoryRecorder(app);
-    }
+  public static Pandora get() {
+    return null;
+  }
 
-    public static Pandora get() {
-        return INSTANCE;
-    }
+  public Interceptor getInterceptor() {
+    return new Interceptor() {
+      @Override
+      public Response intercept(Chain chain) throws IOException {
+        return chain.proceed(chain.request());
+      }
+    };
+  }
 
-    private OkHttpInterceptor interceptor;
-    private Databases databases;
-    private SharedPref sharedPref;
-    private AttrFactory attrFactory;
-    private CrashHandler crashHandler;
-    private HistoryRecorder historyRecorder;
-    private FuncController funcController;
-    private SensorDetector sensorDetector;
+  public Databases getDatabases() {
+    return null;
+  }
 
-    public OkHttpInterceptor getInterceptor() {
-        return interceptor;
-    }
+  public SharedPref getSharedPref() {
+    return null;
+  }
 
-    public Databases getDatabases() {
-        return databases;
-    }
+  public AttrFactory getAttrFactory() {
+    return null;
+  }
 
-    public SharedPref getSharedPref() {
-        return sharedPref;
-    }
+  /** @hide */
+  public Activity getTopActivity() {
+    return null;
+  }
 
-    public AttrFactory getAttrFactory() {
-        return attrFactory;
-    }
+  public void addFunction(IFunc func) {}
 
-    /**
-     * @hide
-     */
-    public Activity getTopActivity() {
-        return historyRecorder.getTopActivity();
-    }
+  /** Open the panel. */
+  public void open() {}
 
-    /**
-     * Add a custom entry to the panel.
-     * also see @{@link tech.linjiang.pandora.function.IFunc}
-     *
-     * @param func
-     */
-    public void addFunction(IFunc func) {
-        funcController.addFunc(func);
-    }
+  /** Close the panel. */
+  public void close() {}
 
-    /**
-     * Open the panel.
-     */
-    public void open() {
-        funcController.open();
-    }
+  /** Disable the Shake feature. */
+  public void disableShakeSwitch() {}
 
-    /**
-     * Close the panel.
-     */
-    public void close() {
-        funcController.close();
-    }
-
-    /**
-     * Disable the Shake feature.
-     */
-    public void disableShakeSwitch() {
-        sensorDetector.unRegister();
-    }
-
-    @Override
-    public void shakeValid() {
-        open();
-    }
+  @Override
+  public void shakeValid() {
+    open();
+  }
 }
