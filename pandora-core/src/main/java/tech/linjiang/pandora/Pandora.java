@@ -16,6 +16,7 @@ import tech.linjiang.pandora.util.SensorDetector;
 /** Created by linjiang on 29/05/2018. */
 public final class Pandora extends FileProvider implements SensorDetector.Callback {
 
+  private static Pandora PANDORA;
 
   public Pandora() {
   }
@@ -24,11 +25,12 @@ public final class Pandora extends FileProvider implements SensorDetector.Callba
 
   @Override
   public boolean onCreate() {
+    PANDORA = this;
     return super.onCreate();
   }
 
   public static Pandora get() {
-    return null;
+    return PANDORA;
   }
 
   public Interceptor getInterceptor() {
